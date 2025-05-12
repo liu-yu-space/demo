@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <style>
+      test-p {
+        display: block;
+        border: 1px solid #ddd;
+        padding: 10px;
+        margin: 10px 0;
+      }
+      span {
+        color: blue;
+      }
+    </style>
+  </head>
+  <body>
+    <test-p color="#ddd">
+      <span slot="my-text">让我们使用一些不同的文本！</span>
+    </test-p>
+    <p>
+      <span>这是一个P元素</span>
+    </p>
+    <template id="my-paragraph">
+      <style>
+        p {
+          color: #f00;
+        }
+      </style>
+      <p>我的段落</p>
+      <slot name="my-text">我的默认文本</slot>
+    </template>
+    <div>
+      <button onclick="removeCustomElement()">删除自定义元素</button>
+      <button onclick="moveCustomElement()">移动自定义元素到P</button>
+      <button onclick="modifyCustomElement()">修改自定义元素的属性</button>
+    </div>
+    <script>
+      // 为这个元素创建类
+      class MyCustomElement extends HTMLElement {
+        static observedAttributes = ["color", "size"];
+        constructor() {
+          // 必须首先调用 super 方法
+          super();
+          let template = document.getElementById("my-paragraph");
+          let templateContent = template.content;
+          const shadow = this.attachShadow({ mode: "open" });
+          shadow.appendChild(templateContent);
+        }
+        connectedCallback() {
+          console.log("自定义元素添加至页面。");
+        }
+        disconnectedCallback() {
+          console.log("自定义元素从页面中移除。");
+        }
+        adoptedCallback() {
+          console.log("自定义元素移动至新页面。");
+        }
+        attributeChangedCallback(name, oldValue, newValue) {
+          console.log(`属性 ${name} 已变更。`);
+        }
+        attributeChangedCallback(name, oldValue, newValue) {
+          console.log(`属性 ${name} 已变更。`);
+          if (name === "color") {
+            this.style.color = newValue;
+          } else if (name === "size") {
+            this.style.fontSize = newValue === "large" ? "2em" : "1em";
+          }
+        }
+      }
+
+      // 注册自定义元素
+      customElements.define("test-p", MyCustomElement);
+
+      // 删除自定义元素
+      function removeCustomElement() {
+        const customElement = document.querySelector("test-p");
+        if (customElement) {
+          customElement.remove();
+        }
+      }
+
+      // 移动自定义元素到P
+      function moveCustomElement() {
+        // console.log("移动自定义元素到P");s
+        const customElement = document.querySelector("test-p");
+        const pElement = document.querySelector("p");
+        if (customElement && pElement) {
+          pElement.appendChild(customElement);
+        }
+      }
+
+      // 修改自定义元素的属性
+      function modifyCustomElement() {
+        const customElement = document.querySelector("test-p");
+        if (customElement) {
+          customElement.setAttribute("color", "red");
+          customElement.setAttribute("size", "large");
+        }
+      }
+    </script>
+  </body>
+</html>
